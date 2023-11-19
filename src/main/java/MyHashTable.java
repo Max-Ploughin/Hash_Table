@@ -152,7 +152,7 @@ public class MyHashTable {
         }
     }
 
-    //
+    // Method for reducing the size of the table in case 70% or more of it consists of empty values (bucket size equals 0).
     private void reduceArray() {
         // Calculate the new size of the array after reducing it by 30%.
         int newSize = (int) (dataList.length * 0.7);
