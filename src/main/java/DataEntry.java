@@ -18,7 +18,7 @@ public class DataEntry {
                 '}';
     }
 
-    // проверить для хэштаблицы (нужен ли value)
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
