@@ -7,13 +7,13 @@ public class MyHashTable {
     private LinkedList<DataEntry>[] dataList;
     private static final int ARRAY_SIZE = 16;
     private static final int BUCKET_SIZE = 10;
-    //List for storing index values with the purpose of tracking their counts to reduce collisions.
+    // List for storing index values with the purpose of tracking their counts to reduce collisions.
     private ArrayList<Integer> indexList;
-    //Counter for controlling the size of buckets.
+    // Counter for controlling the size of buckets.
     private int count;
     private int zeroBuckets = 0;
 
-    //Constructor to initialize each element of the array as a new LinkedList.
+    // Constructor to initialize each element of the array as a new LinkedList.
     public MyHashTable() {
         this.count = 0;
         this.indexList = new ArrayList<>();
@@ -25,8 +25,8 @@ public class MyHashTable {
 
     // Custom hash function.
     private int customHashCode(String key) {
-        int hash = 0; //Initial value for the hash value.
-        int primeValue = 31; //A prime number for multiplication, based on standard practices.
+        int hash = 0; // Initial value for the hash value.
+        int primeValue = 31; // A prime number for multiplication, based on standard practices.
         for (int i = 0; i < key.length(); i++) {
             hash = (hash * primeValue) + key.charAt(i);
         }
@@ -41,31 +41,31 @@ public class MyHashTable {
         return index;
     }
 
-    //Method for adding data.
+    // Method for adding data.
     public void insertData(String key, String value) {
 
         int index = getIndex(key);
-        //Collision check: how many times a particular index is encountered determines the size of the bucket.
+        // Collision check: how many times a particular index is encountered determines the size of the bucket.
         if (indexList.contains(index)) {
             count++;
         }
         indexList.add(index);
 
-        //Check if the bucket size has not been exceeded.
+        // Check if the bucket size has not been exceeded.
         if (!checkCount()) {
             LinkedList<DataEntry> bucket = dataList[index];
 
-            //Check if the key already exists.
+            // Check if the key already exists.
             for (DataEntry dataEntry : bucket) {
                 if (dataEntry.key.equals(key)) {
                     dataEntry.value = value;
                     return;
                 }
             }
-            //If the key does not exist, then add the data.
+            // If the key does not exist, then add the data.
             bucket.add(new DataEntry(key, value));
         } else {
-            //If the bucket size is exceeded, it is necessary to increase the array to reduce collisions.
+            // If the bucket size is exceeded, it is necessary to increase the array to reduce collisions.
             expandArray();
         }
 
@@ -83,7 +83,7 @@ public class MyHashTable {
             DataEntry dataEntry = iterator.next();
             if (dataEntry.key.equals(key)) {
                 iterator.remove();
-                //Collision check: how many times a particular index is encountered determines the size of the bucket.
+                // Collision check: how many times a particular index is encountered determines the size of the bucket.
                 if (indexList.contains(index)) {
                     int indexToRemove = indexList.indexOf(index);
                     indexList.remove(indexToRemove);
@@ -99,7 +99,7 @@ public class MyHashTable {
         }
     }
 
-    //Method for getting data.
+    // Method for getting data.
     public String getValue(String key) {
         int index = getIndex(key);
         LinkedList<DataEntry> bucket = dataList[index];
@@ -112,7 +112,7 @@ public class MyHashTable {
         return null;
     }
 
-    //Method for checking the size of the bucket.
+    // Method for checking the size of the bucket.
     private boolean checkCount() {
         if (count > BUCKET_SIZE) {
             return true;
@@ -120,21 +120,21 @@ public class MyHashTable {
         return false;
     }
 
-    //Method for increasing the array.
+    // Method for increasing the array.
     private void expandArray() {
-        //We create a temporary list to store the existing data in it.
+        // We create a temporary list to store the existing data in it.
         LinkedList<DataEntry>[] temporaryList = dataList;
-        //We reset the counter because we are increasing the size of the array, and we will be obtaining new indices.
+        // We reset the counter because we are increasing the size of the array, and we will be obtaining new indices.
         count = 0;
-        //We clear the list of indices.
+        // We clear the list of indices.
         indexList.clear();
-        //We create an array with a new dimension (all arrays will be increased by 16).
+        // We create an array with a new dimension (all arrays will be increased by 16).
         dataList = new LinkedList[ARRAY_SIZE + temporaryList.length];
         for (int i = 0; i < dataList.length; i++) {
             dataList[i] = new LinkedList<>();
         }
 
-        //We place the data into the new list.
+        // We place the data into the new list.
         for (int i = 0; i < temporaryList.length; i++) {
             LinkedList<DataEntry> dataEntries = temporaryList[i];
             for (DataEntry dataEntry : dataEntries) {
