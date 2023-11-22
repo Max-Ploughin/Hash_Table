@@ -1,3 +1,7 @@
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -23,28 +27,67 @@ public class MyHashTable {
         }
     }
 
-    // Custom hash function.
-    private int customHashCode(String key) {
-        int hash = 0; // Initial value for the hash value.
-        int primeValue = 31; // A prime number for multiplication, based on standard practices.
-        for (int i = 0; i < key.length(); i++) {
-            hash = (hash * primeValue) + key.charAt(i);
+    // Method for SHA-256 calculation
+    private String hashFunctionSHA256(String key){
+        try {
+            // Get an instance of MessageDigest using SHA-256
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            // Get the byte representation of the input data
+            byte[] encodeHash = digest.digest(key.getBytes(StandardCharsets.UTF_8));
+
+            // Convert the byte representation to a string of hexadecimal characters
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : encodeHash){
+                // Convert the lower 8 bits of the byte 'b' to its hexadecimal representation
+                String hex = Integer.toHexString(0xff & b);
+                /*
+                    Ensure that each byte is represented by two hexadecimal characters
+                    If the length of the hexadecimal string is 1, add a leading '0' to make it two characters
+                */
+                if (hex.length() == 1) {
+                    hexString.append('0');
+                }
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e){
+            e.printStackTrace();
+            return null;
         }
-        return hash;
     }
 
-    // Obtaining an index based on the hash code and array size.
-    private int getIndex(String key) {
-        int hash = customHashCode(key);
-        int index = hash % dataList.length;
+    private int getIndexSHA256(String key){
+        String hexString = hashFunctionSHA256(key);
+        BigInteger decimalNumber = new BigInteger(hexString, 16);
+        BigInteger dataListSize = BigInteger.valueOf(dataList.length);
+        BigInteger result = decimalNumber.mod(dataListSize);
 
-        return index;
+        return result.intValue();
     }
+
+//    // Custom hash function.
+//    private int customHashCode(String key) {
+//        int hash = 0; // Initial value for the hash value.
+//        int primeValue = 31; // A prime number for multiplication, based on standard practices.
+//        for (int i = 0; i < key.length(); i++) {
+//            hash = (hash * primeValue) + key.charAt(i);
+//        }
+//        return hash;
+//    }
+//
+//    // Obtaining an index based on the hash code and array size.
+//    private int getIndex(String key) {
+//        int hash = customHashCode(key);
+//        int index = hash % dataList.length;
+//
+//        return index;
+//    }
 
     // Method for adding data.
     public void insertData(String key, String value) {
 
-        int index = getIndex(key);
+//        int index = getIndex(key);
+        int index = getIndexSHA256(key);
         // Collision check: how many times a particular index is encountered determines the size of the bucket.
         if (indexList.contains(index)) {
             count++;
@@ -67,6 +110,7 @@ public class MyHashTable {
         } else {
             // If the bucket size is exceeded, it is necessary to increase the array to reduce collisions.
             expandArray();
+            insertData(key, value);
         }
 
 
@@ -74,7 +118,8 @@ public class MyHashTable {
 
     // Method for removing values.
     public void removeValue(String key) {
-        int index = getIndex(key);
+//        int index = getIndex(key);
+        int index = getIndexSHA256(key);
         LinkedList<DataEntry> bucket = dataList[index];
 
         // Using an iterator to safely remove elements while iterating.
@@ -101,7 +146,8 @@ public class MyHashTable {
 
     // Method for getting data.
     public String getValue(String key) {
-        int index = getIndex(key);
+//        int index = getIndex(key);
+        int index = getIndexSHA256(key);
         LinkedList<DataEntry> bucket = dataList[index];
 
         for (DataEntry dataEntry : bucket) {
